@@ -1,0 +1,7 @@
+name = "milan-excavating-counter"
+main = "index.js"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "MILAN_COUNTER"
+id = "f9f7da80dc9b4278829d3609dd1a8bc7"

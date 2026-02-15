@@ -2,3 +2,9 @@ testing
 node_modules/
 public
 venv
+
+# Cloudflare
+.wrangler/
+*.log
+.DS_Store
+
