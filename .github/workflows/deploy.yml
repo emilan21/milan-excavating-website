@@ -102,5 +102,4 @@ jobs:
           echo "  Deployment Complete!"
           echo "========================================"
           echo "Site URL: https://milanexcavatingpa.com"
-          echo "Admin URL: https://milanexcavatingpa.com/admin.html"
           echo "========================================"

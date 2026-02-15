@@ -5,8 +5,7 @@ Static website for Milan Excavating with Cloudflare deployment and hidden visito
 ## Features
 
 - **Static Site**: Simple HTML/CSS website hosted on Cloudflare Pages
-- **Visitor Counter**: Tracks visits using Cloudflare KV (hidden from public view)
-- **Admin Dashboard**: Private `/admin.html` page to view visitor statistics
+- **Visitor Counter**: Tracks visits using Cloudflare KV (hidden from public view, only accessible to you via Cloudflare Dashboard)
 
 ## Project Structure
 
@@ -14,7 +13,6 @@ Static website for Milan Excavating with Cloudflare deployment and hidden visito
 .
 ├── frontend/                  # Static website files
 │   ├── index.html            # Main website
-│   ├── admin.html            # Admin dashboard
 │   ├── css/                  # Stylesheets
 │   └── js/                   # JavaScript
 │       └── track-visitors.js # Hidden visitor tracking
@@ -61,9 +59,17 @@ Push to `master` and the site deploys automatically.
    - `CLOUDFLARE_API_TOKEN`
    - `CLOUDFLARE_ACCOUNT_ID`
 
-## Viewing Stats
+## Viewing Visitor Stats
 
-Visit: `milanexcavatingpa.com/admin.html`
+Since there is no public admin page, you can only view the visitor count through your Cloudflare account:
+
+1. Go to [dash.cloudflare.com](https://dash.cloudflare.com)
+2. Navigate to **Workers & Pages**
+3. Click on **milan-excavating-counter** worker
+4. Click on **KV** in the sidebar
+5. Look for the key named `count` - this shows your total visits
+
+Only you (as the Cloudflare account owner) can access this data.
 
 ## Custom Domain
 
