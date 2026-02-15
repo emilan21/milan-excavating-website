@@ -55,7 +55,7 @@ jobs:
           echo "========================================"
           echo "  Deployment Plan"
           echo "========================================"
-          echo "Project: milan-excavating-website"
+          echo "Project: milan-excavating-site"
           echo "Domain: milanexcavatingpa.com"
           echo "Branch: ${{ github.ref_name }}"
           echo "Commit: ${{ github.sha }}"
@@ -92,7 +92,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: milan-excavating-website
+          projectName: milan-excavating-site
           directory: frontend
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
