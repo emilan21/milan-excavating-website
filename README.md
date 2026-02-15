@@ -63,7 +63,7 @@ Push to `master` and the site deploys automatically.
 
 ## Viewing Stats
 
-Visit: `yoursite.pages.dev/admin.html`
+Visit: `milanexcavatingpa.com/admin.html`
 
 ## Custom Domain
 
