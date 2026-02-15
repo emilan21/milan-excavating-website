@@ -1,13 +1,47 @@
-<!doctype html>
-<html>
-  <head>
-    <link rel="stylesheet" href="css/404.css">
-  </head>
-  <body>
-	<div id="main">
-		<div class="fof">
-				<h1>Error 404</h1>
-		</div>
-	</div>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found | Milan's Excavating & Landscaping</title>
+    <link rel="stylesheet" href="css/styles.min.css">
+    <style>
+        .error-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+        .error-content h1 {
+            font-size: 120px;
+            color: var(--excavator-yellow);
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .error-content h2 {
+            font-size: 36px;
+            color: var(--concrete-gray);
+            margin-bottom: 30px;
+        }
+        .error-content p {
+            font-size: 18px;
+            color: var(--concrete-gray);
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-page">
+        <div class="error-content">
+            <h1>404</h1>
+            <h2>Page Not Found</h2>
+            <p>Sorry, we couldn't find the page you're looking for.</p>
+            <a href="/" class="cta-button">
+                <i class="fas fa-home"></i> Back to Home
+            </a>
+        </div>
+    </div>
+</body>
 </html>
