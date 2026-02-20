@@ -1,0 +1,23 @@
+{
+  "name": "milan-excavating-website",
+  "version": "1.0.0",
+  "description": "Milan's Excavating & Landscaping website with local dev server",
+  "scripts": {
+    "dev": "wrangler pages dev frontend --port=8000 --compatibility-date=2024-01-01",
+    "dev:worker": "wrangler dev worker/index.js --port=8787",
+    "deploy": "wrangler pages deploy frontend",
+    "setup": "npm install -g wrangler && wrangler login"
+  },
+  "devDependencies": {
+    "cypress": "^13.17.0",
+    "wrangler": "^3.0.0"
+  },
+  "keywords": [
+    "excavating",
+    "landscaping",
+    "cloudflare",
+    "pages"
+  ],
+  "author": "Eric Milan",
+  "license": "MIT"
+}
