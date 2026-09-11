@@ -18,7 +18,7 @@ npm run typecheck
 BUILD_ENV=production npm run build
 spacetime login --token "$SPACETIMEDB_DEPLOY_TOKEN"
 spacetime publish "$SPACETIMEDB_DATABASE" --server maincloud --module-path spacetimedb --delete-data=never --yes=remote,migrate
-spacetime call --server maincloud "$SPACETIMEDB_DATABASE" configure_security "$SPACETIMEDB_GATEWAY_IDENTITY" "$SPACETIMEAUTH_CLIENT_ID"
+spacetime call --no-config --server maincloud "$SPACETIMEDB_DATABASE" configure_security "$SPACETIMEDB_GATEWAY_IDENTITY" "$SPACETIMEAUTH_CLIENT_ID"
 jq -n --arg turnstile "$TURNSTILE_SECRET" --arg spacetime "$SPACETIMEDB_SERVICE_TOKEN" \
   '{TURNSTILE_SECRET: $turnstile, SPACETIMEDB_TOKEN: $spacetime}' |
   npx wrangler secret bulk --config worker/wrangler.jsonc

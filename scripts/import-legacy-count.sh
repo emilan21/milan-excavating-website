@@ -5,5 +5,5 @@ if [[ $# -ne 1 || ! "$1" =~ ^[0-9]+$ ]]; then
   exit 2
 fi
 : "${SPACETIMEDB_DATABASE:=milan-excavating}"
-spacetime call --server maincloud "$SPACETIMEDB_DATABASE" import_legacy_visit_total "$1"
+spacetime call --no-config --server maincloud "$SPACETIMEDB_DATABASE" import_legacy_visit_total "$1"
 echo "Imported legacy lifetime total. This reducer cannot be run twice."

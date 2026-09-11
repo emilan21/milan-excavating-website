@@ -95,7 +95,7 @@ jobs:
         run: |
           spacetime login --token "$SPACETIMEDB_DEPLOY_TOKEN"
           spacetime publish "$SPACETIMEDB_DATABASE" --server maincloud --module-path spacetimedb --delete-data=never --yes=remote,migrate
-          spacetime call --server maincloud "$SPACETIMEDB_DATABASE" configure_security "$SPACETIMEDB_GATEWAY_IDENTITY" "$SPACETIMEAUTH_CLIENT_ID"
+          spacetime call --no-config --server maincloud "$SPACETIMEDB_DATABASE" configure_security "$SPACETIMEDB_GATEWAY_IDENTITY" "$SPACETIMEAUTH_CLIENT_ID"
       - name: Update Worker secrets
         run: |
           jq -n --arg turnstile "$TURNSTILE_SECRET" --arg spacetime "$SPACETIMEDB_SERVICE_TOKEN" \
