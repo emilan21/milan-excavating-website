@@ -19,4 +19,10 @@ describe('The Home Page', () => {
     cy.reload()
     cy.then(() => expect(visits).to.equal(1))
   })
+
+  it('shows the admin login button when there is no session', () => {
+    cy.visit('/admin.html')
+    cy.contains('button', 'Email me a sign-in link').should('be.visible')
+    cy.get('#admin-dashboard').should('not.be.visible')
+  })
 })

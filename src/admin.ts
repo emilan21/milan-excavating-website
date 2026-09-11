@@ -24,6 +24,16 @@ function setMessage(text: string, isError = false): void {
   message.className = isError ? 'admin-message admin-message--error' : 'admin-message';
 }
 
+function showLogin(): void {
+  loginPanel.hidden = false;
+  dashboard.hidden = true;
+}
+
+function showDashboard(): void {
+  loginPanel.hidden = true;
+  dashboard.hidden = false;
+}
+
 function renderStats(): void {
   if (!connection) return;
   const lifetime = Array.from(connection.db.adminLifetimeVisits.iter())[0];
@@ -64,23 +74,42 @@ function connect(user: User): void {
 }
 
 async function start(): Promise<void> {
+  showLogin();
   if (!userManager) {
     setMessage('Admin login is not configured. Set SPACETIMEAUTH_CLIENT_ID during the production build.', true);
     loginButton.disabled = true;
     return;
   }
-  if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
-    await userManager.signinRedirectCallback();
+  const callback = new URLSearchParams(window.location.search);
+  if (callback.has('code') && callback.has('state')) {
+    await userManager.signinCallback();
+    history.replaceState({}, document.title, '/admin');
+  } else if (callback.has('state')) {
+    await userManager.signoutCallback();
     history.replaceState({}, document.title, '/admin');
   }
   const user = await userManager.getUser();
   if (!user || user.expired) return;
-  loginPanel.hidden = true;
-  dashboard.hidden = false;
+  showDashboard();
   connect(user);
 }
 
+async function logout(): Promise<void> {
+  connection?.disconnect();
+  connection = undefined;
+  showLogin();
+  setMessage('Signing out…');
+  if (!userManager) return;
+  try {
+    await userManager.signoutRedirect();
+  } catch (error) {
+    await userManager.removeUser();
+    showLogin();
+    setMessage(error instanceof Error ? `Signed out locally: ${error.message}` : 'Signed out locally.', true);
+  }
+}
+
 loginButton.addEventListener('click', () => void userManager?.signinRedirect());
-logoutButton.addEventListener('click', () => { connection?.disconnect(); void userManager?.signoutRedirect(); });
+logoutButton.addEventListener('click', () => void logout());
 
 void start().catch(error => setMessage(error instanceof Error ? error.message : 'Admin startup failed', true));
