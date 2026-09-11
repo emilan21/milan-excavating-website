@@ -1,6 +1,6 @@
 # Milan Excavating Website
 
-The public website is a vanilla static site on Cloudflare Pages. Customers contact the business by phone. A Cloudflare Worker records privacy-minimal visit totals in SpacetimeDB, and the no-index admin page displays those totals after SpacetimeAuth login.
+The public website is a vanilla static site on Cloudflare Pages. Customers contact the business by phone. A Cloudflare Worker records privacy-minimal visit totals in SpacetimeDB, and the no-index admin page displays those totals after GitHub login through SpacetimeAuth.
 
 The previously deployed estimate tables remain private and dormant for safe, non-destructive database compatibility. The website has no estimate form and the Worker does not expose an estimate endpoint.
 
@@ -82,12 +82,13 @@ Cloudflare Pages canonicalizes `admin.html` to `/admin`. In the [SpacetimeDB das
 
 Then:
 
-1. Open `/admin` and click **Email me a sign-in link**.
-2. Complete the email login once so the user exists.
-3. In **SpacetimeAuth → Users**, assign that user the role named exactly `admin`.
-4. Sign out and sign in again so the new token includes the role.
+1. Create a GitHub OAuth App with homepage `https://milanexcavatingpa.com` and callback URL `https://auth.spacetimedb.com/interactions/federated/callback/github`.
+2. In **SpacetimeAuth → Identity Providers → GitHub**, enter the OAuth App client ID and client secret, enable GitHub, and save.
+3. In the SpacetimeAuth project authentication-method settings, disable email magic links so GitHub is the only login method.
+4. Store the verified email belonging to the allowed GitHub account in the production environment secret `SPACETIMEAUTH_ADMIN_EMAIL`, and its username in `SPACETIMEAUTH_GITHUB_USERNAME`.
+5. Open `/admin` and click **Sign in with GitHub**.
 
-The dashboard shows lifetime visits and the latest 14 daily totals. Anonymous and non-admin users receive no analytics rows.
+The dashboard shows lifetime visits and the latest 14 daily totals. Authorization requires the expected SpacetimeAuth issuer, this site's OIDC client ID, an exact verified-email match, and the matching GitHub `preferred_username` claim. Magic-link identities, anonymous users, and other authenticated accounts receive no analytics rows.
 
 ## Deployment
 
@@ -103,12 +104,14 @@ The production environment requires these GitHub secrets:
 - `CLOUDFLARE_ACCOUNT_ID`
 - `SPACETIMEDB_DEPLOY_TOKEN`
 - `SPACETIMEDB_SERVICE_TOKEN`
+- `SPACETIMEAUTH_ADMIN_EMAIL`
 
 It also requires these GitHub variables:
 
 - `SPACETIMEDB_GATEWAY_IDENTITY`
 - `PUBLIC_API_BASE_URL`
 - `SPACETIMEAUTH_CLIENT_ID`
+- `SPACETIMEAUTH_GITHUB_USERNAME`
 
 The Cloudflare CI token needs `Workers Scripts: Edit` and `Cloudflare Pages: Edit` for the production account.
 
@@ -125,4 +128,4 @@ The one-time guarded setup helper is:
 - The public page shows phone contact buttons and no web form.
 - A page load records one visit per browser session.
 - `/admin` initiates SpacetimeAuth using the `/admin` redirect URI.
-- Anonymous and non-admin subscribers receive no visit rows.
+- Anonymous and non-allowlisted subscribers receive no visit rows.

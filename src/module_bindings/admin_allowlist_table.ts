@@ -10,9 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default {
-  gateway: __t.identity(),
-  oidcAudience: __t.string(),
-  adminEmail: __t.string(),
-  adminGithubUsername: __t.string(),
-};
+export default __t.row({
+  email: __t.string().primaryKey(),
+  githubUsername: __t.string().name("github_username"),
+});

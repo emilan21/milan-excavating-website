@@ -10,6 +10,12 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
+export const AdminAllowlist = __t.object("AdminAllowlist", {
+  email: __t.string(),
+  githubUsername: __t.string(),
+});
+export type AdminAllowlist = __Infer<typeof AdminAllowlist>;
+
 export const AdminDailyVisits = __t.object("AdminDailyVisits", {});
 export type AdminDailyVisits = __Infer<typeof AdminDailyVisits>;
 

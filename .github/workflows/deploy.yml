@@ -68,6 +68,8 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       SPACETIMEDB_DEPLOY_TOKEN: ${{ secrets.SPACETIMEDB_DEPLOY_TOKEN }}
       SPACETIMEDB_SERVICE_TOKEN: ${{ secrets.SPACETIMEDB_SERVICE_TOKEN }}
+      SPACETIMEAUTH_ADMIN_EMAIL: ${{ secrets.SPACETIMEAUTH_ADMIN_EMAIL }}
+      SPACETIMEAUTH_GITHUB_USERNAME: ${{ vars.SPACETIMEAUTH_GITHUB_USERNAME }}
       SPACETIMEDB_GATEWAY_IDENTITY: ${{ vars.SPACETIMEDB_GATEWAY_IDENTITY }}
       PUBLIC_API_BASE_URL: ${{ vars.PUBLIC_API_BASE_URL }}
       SPACETIMEDB_URI: https://maincloud.spacetimedb.com
@@ -93,7 +95,7 @@ jobs:
         run: |
           spacetime login --token "$SPACETIMEDB_DEPLOY_TOKEN"
           spacetime publish "$SPACETIMEDB_DATABASE" --server maincloud --module-path spacetimedb --delete-data=never --yes=remote,migrate
-          spacetime call --no-config --server maincloud "$SPACETIMEDB_DATABASE" configure_security "$SPACETIMEDB_GATEWAY_IDENTITY" "$SPACETIMEAUTH_CLIENT_ID"
+          spacetime call --no-config --server maincloud "$SPACETIMEDB_DATABASE" configure_security "$SPACETIMEDB_GATEWAY_IDENTITY" "$SPACETIMEAUTH_CLIENT_ID" "$SPACETIMEAUTH_ADMIN_EMAIL" "$SPACETIMEAUTH_GITHUB_USERNAME"
       - name: Update Worker secrets
         run: |
           jq -n --arg spacetime "$SPACETIMEDB_SERVICE_TOKEN" \

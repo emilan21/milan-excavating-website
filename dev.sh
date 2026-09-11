@@ -31,7 +31,7 @@ gateway_json="$(curl -fsS -X POST http://127.0.0.1:3000/v1/identity)"
 gateway_identity="$(jq -er '.identity' <<<"$gateway_json")"
 gateway_token="$(jq -er '.token' <<<"$gateway_json")"
 unset gateway_json
-spacetime call --server local milan-excavating-local configure_security "$gateway_identity" client_local
+spacetime call --server local milan-excavating-local configure_security "$gateway_identity" client_local admin@example.test local-admin
 (
   umask 077
   printf '%s\n' \

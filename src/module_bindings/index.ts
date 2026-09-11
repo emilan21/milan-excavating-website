@@ -44,6 +44,7 @@ import UpdateEstimateNotesReducer from "./update_estimate_notes_reducer";
 // Import all procedure arg schemas
 
 // Import all table schema definitions
+import AdminAllowlistRow from "./admin_allowlist_table";
 import AdminDailyVisitsRow from "./admin_daily_visits_table";
 import AdminEstimatesRow from "./admin_estimates_table";
 import AdminLifetimeVisitsRow from "./admin_lifetime_visits_table";
@@ -60,6 +61,17 @@ import SecurityConfigRow from "./security_config_table";
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema({
+  adminAllowlist: __table({
+    name: 'admin_allowlist',
+    indexes: [
+      { accessor: 'email', name: 'admin_allowlist_email_idx_btree', algorithm: 'btree', columns: [
+        'email',
+      ] },
+    ],
+    constraints: [
+      { name: 'admin_allowlist_email_key', constraint: 'unique', columns: ['email'] },
+    ],
+  }, AdminAllowlistRow),
   adminSession: __table({
     name: 'admin_session',
     indexes: [

@@ -64,7 +64,19 @@ function connect(user: User): void {
       conn.db.adminLifetimeVisits.onInsert(renderStats);
       conn.db.adminLifetimeVisits.onUpdate(renderStats);
       conn.subscriptionBuilder()
-        .onApplied(() => { setMessage('Live data connected.'); renderStats(); })
+        .onApplied(() => {
+          const lifetime = Array.from(conn.db.adminLifetimeVisits.iter())[0];
+          if (!lifetime) {
+            conn.disconnect();
+            connection = undefined;
+            showLogin();
+            setMessage('This GitHub account is not authorized for the dashboard.', true);
+            return;
+          }
+          showDashboard();
+          setMessage('Live data connected.');
+          renderStats();
+        })
         .onError(ctx => setMessage(`Subscription failed: ${ctx.event?.message ?? 'unknown error'}`, true))
         .subscribe(['SELECT * FROM admin_daily_visits', 'SELECT * FROM admin_lifetime_visits']);
     })
@@ -90,7 +102,6 @@ async function start(): Promise<void> {
   }
   const user = await userManager.getUser();
   if (!user || user.expired) return;
-  showDashboard();
   connect(user);
 }
 

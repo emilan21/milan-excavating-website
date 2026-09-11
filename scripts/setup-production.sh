@@ -20,6 +20,8 @@ Optional environment defaults:
   CLOUDFLARE_API_TOKEN          CI token with Workers Scripts and Pages edit
   PUBLIC_API_BASE_URL           Deployed Worker origin, without a trailing slash
   SPACETIMEAUTH_CLIENT_ID       SpacetimeAuth OIDC client ID
+  SPACETIMEAUTH_ADMIN_EMAIL     Verified email of the sole dashboard admin
+  SPACETIMEAUTH_GITHUB_USERNAME GitHub username of the sole dashboard admin
   SPACETIMEDB_DEPLOY_TOKEN      Database-owner token
   SPACETIMEDB_GATEWAY_IDENTITY  Reuse an existing gateway identity
   SPACETIMEDB_SERVICE_TOKEN     Token paired with the reused identity
@@ -94,6 +96,14 @@ fi
 prompt_value spacetimeauth_client_id "SpacetimeAuth client ID" "${SPACETIMEAUTH_CLIENT_ID:-}"
 [[ "$spacetimeauth_client_id" =~ ^client_[A-Za-z0-9]+$ ]] || { echo "SpacetimeAuth client ID must look like client_abc123." >&2; exit 1; }
 
+prompt_value spacetimeauth_admin_email "Verified admin email" "${SPACETIMEAUTH_ADMIN_EMAIL:-}"
+spacetimeauth_admin_email="${spacetimeauth_admin_email,,}"
+[[ "$spacetimeauth_admin_email" =~ ^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$ ]] || { echo "Admin email is invalid." >&2; exit 1; }
+
+prompt_value spacetimeauth_github_username "Admin GitHub username" "${SPACETIMEAUTH_GITHUB_USERNAME:-}"
+spacetimeauth_github_username="${spacetimeauth_github_username,,}"
+[[ "$spacetimeauth_github_username" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?$ && ${#spacetimeauth_github_username} -le 39 ]] || { echo "GitHub username is invalid." >&2; exit 1; }
+
 reuse_gateway=false
 if [[ -n "${SPACETIMEDB_GATEWAY_IDENTITY:-}" || -n "${SPACETIMEDB_SERVICE_TOKEN:-}" ]]; then
   [[ -n "${SPACETIMEDB_GATEWAY_IDENTITY:-}" && -n "${SPACETIMEDB_SERVICE_TOKEN:-}" ]] || {
@@ -150,6 +160,9 @@ unset spacetime_deploy_token SPACETIMEDB_DEPLOY_TOKEN
 
 set_variable PUBLIC_API_BASE_URL "$public_api_base_url"
 set_variable SPACETIMEAUTH_CLIENT_ID "$spacetimeauth_client_id"
+set_secret SPACETIMEAUTH_ADMIN_EMAIL "$spacetimeauth_admin_email"
+set_variable SPACETIMEAUTH_GITHUB_USERNAME "$spacetimeauth_github_username"
+unset spacetimeauth_admin_email spacetimeauth_github_username SPACETIMEAUTH_ADMIN_EMAIL SPACETIMEAUTH_GITHUB_USERNAME
 
 echo
 echo "Setup complete. Push to master or run:"

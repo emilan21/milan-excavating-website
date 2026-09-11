@@ -27,10 +27,40 @@ export function isIsoDate(value: string): boolean {
   return !Number.isNaN(parsed.valueOf()) && parsed.toISOString().slice(0, 10) === value;
 }
 
-export function hasAdminRole(auth: AuthContext, expectedIssuer: string, expectedAudience: string): boolean {
+export function normalizeAdminEmail(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+export function isValidAdminEmail(value: string): boolean {
+  const email = normalizeAdminEmail(value);
+  return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+export function normalizeGithubUsername(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+export function isValidGithubUsername(value: string): boolean {
+  const username = normalizeGithubUsername(value);
+  return username.length <= 39 && /^[a-z\d](?:[a-z\d-]*[a-z\d])?$/.test(username);
+}
+
+export function hasAdminAccount(
+  auth: AuthContext,
+  expectedIssuer: string,
+  expectedAudience: string,
+  expectedEmail: string,
+  expectedGithubUsername: string,
+): boolean {
   if (auth.isInternal) return true;
   const jwt = auth.jwt;
   if (!jwt || jwt.issuer !== expectedIssuer || !jwt.audience.includes(expectedAudience)) return false;
-  const roles = jwt.fullPayload.roles;
-  return Array.isArray(roles) && roles.includes('admin');
+  const email = jwt.fullPayload.email;
+  const verified = jwt.fullPayload.email_verified;
+  const username = jwt.fullPayload.preferred_username;
+  return verified === true
+    && typeof email === 'string'
+    && normalizeAdminEmail(email) === normalizeAdminEmail(expectedEmail)
+    && typeof username === 'string'
+    && normalizeGithubUsername(username) === normalizeGithubUsername(expectedGithubUsername);
 }

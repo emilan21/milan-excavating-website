@@ -22,7 +22,7 @@ describe('The Home Page', () => {
 
   it('shows the admin login button when there is no session', () => {
     cy.visit('/admin.html')
-    cy.contains('button', 'Email me a sign-in link').should('be.visible')
+    cy.contains('button', 'Sign in with GitHub').should('be.visible')
     cy.get('#admin-dashboard').should('not.be.visible')
   })
 })

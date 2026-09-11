@@ -1,6 +1,6 @@
 import { SenderError, schema, table, t } from 'spacetimedb/server';
 import type { Identity } from 'spacetimedb';
-import { canTransition, hasAdminRole, isIsoDate, STATUSES, type AuthContext } from './validation';
+import { canTransition, hasAdminAccount, isIsoDate, isValidAdminEmail, isValidGithubUsername, normalizeAdminEmail, normalizeGithubUsername, STATUSES, type AuthContext } from './validation';
 
 const ADMIN_SCOPE = 'admin';
 const SPACETIMEAUTH_ISSUER = 'https://auth.spacetimedb.com/oidc';
@@ -21,6 +21,14 @@ const securityConfig = table(
 const gatewayIdentity = table(
   { name: 'gateway_identity' },
   { identity: t.identity().primaryKey() }
+);
+
+const adminAllowlist = table(
+  { name: 'admin_allowlist' },
+  {
+    email: t.string().primaryKey(),
+    githubUsername: t.string(),
+  }
 );
 
 const adminSession = table(
@@ -80,6 +88,7 @@ const spacetimedb = schema({
   moduleOwner,
   securityConfig,
   gatewayIdentity,
+  adminAllowlist,
   adminSession,
   estimateRequest,
   dailyVisit,
@@ -89,8 +98,13 @@ const spacetimedb = schema({
 
 export default spacetimedb;
 
-function hasAdminClaim(auth: AuthContext, audience: string): boolean {
-  return hasAdminRole(auth, SPACETIMEAUTH_ISSUER, audience);
+function hasAdminClaim(ctx: { senderAuth: AuthContext; db: any }): boolean {
+  const config = ctx.db.securityConfig.key.find(0);
+  if (!config) return false;
+  for (const admin of ctx.db.adminAllowlist.iter()) {
+    if (hasAdminAccount(ctx.senderAuth, SPACETIMEAUTH_ISSUER, config.oidcAudience, admin.email, admin.githubUsername)) return true;
+  }
+  return false;
 }
 
 function isOwner(ctx: { sender: Identity; db: any }): boolean {
@@ -102,9 +116,8 @@ function requireOwner(ctx: { sender: Identity; db: any }): void {
 }
 
 function requireAdmin(ctx: { senderAuth: AuthContext; db: any }): void {
-  const config = ctx.db.securityConfig.key.find(0);
-  if (!config || !hasAdminClaim(ctx.senderAuth, config.oidcAudience)) {
-    throw new SenderError('Unauthorized: admin role required');
+  if (!hasAdminClaim(ctx)) {
+    throw new SenderError('Unauthorized: allowlisted admin account required');
   }
 }
 
@@ -121,8 +134,7 @@ export const init = spacetimedb.init(ctx => {
 });
 
 export const onConnect = spacetimedb.clientConnected(ctx => {
-  const config = ctx.db.securityConfig.key.find(0);
-  if (!config || !hasAdminClaim(ctx.senderAuth, config.oidcAudience)) return;
+  if (!hasAdminClaim(ctx)) return;
   const session = ctx.db.adminSession.identity.find(ctx.sender);
   if (session) ctx.db.adminSession.identity.update({ ...session, connections: session.connections + 1 });
   else ctx.db.adminSession.insert({ identity: ctx.sender, connections: 1 });
@@ -136,13 +148,20 @@ export const onDisconnect = spacetimedb.clientDisconnected(ctx => {
 });
 
 export const configureSecurity = spacetimedb.reducer(
-  { gateway: t.identity(), oidcAudience: t.string() },
-  (ctx, { gateway, oidcAudience }) => {
+  { gateway: t.identity(), oidcAudience: t.string(), adminEmail: t.string(), adminGithubUsername: t.string() },
+  (ctx, { gateway, oidcAudience, adminEmail, adminGithubUsername }) => {
     requireOwner(ctx);
     const audience = oidcAudience.trim();
     if (!/^client_[A-Za-z0-9]+$/.test(audience)) throw new SenderError('Invalid SpacetimeAuth audience');
+    if (!isValidAdminEmail(adminEmail)) throw new SenderError('Invalid admin email');
+    if (!isValidGithubUsername(adminGithubUsername)) throw new SenderError('Invalid GitHub username');
     for (const row of ctx.db.gatewayIdentity.iter()) ctx.db.gatewayIdentity.identity.delete(row.identity);
     ctx.db.gatewayIdentity.insert({ identity: gateway });
+    for (const row of ctx.db.adminAllowlist.iter()) ctx.db.adminAllowlist.email.delete(row.email);
+    ctx.db.adminAllowlist.insert({
+      email: normalizeAdminEmail(adminEmail),
+      githubUsername: normalizeGithubUsername(adminGithubUsername),
+    });
     const current = ctx.db.securityConfig.key.find(0);
     if (current) ctx.db.securityConfig.key.update({ key: 0, oidcAudience: audience });
     else ctx.db.securityConfig.insert({ key: 0, oidcAudience: audience });

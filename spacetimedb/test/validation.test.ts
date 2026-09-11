@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canTransition, hasAdminRole, isIsoDate } from '../src/validation';
+import { canTransition, hasAdminAccount, isIsoDate, isValidAdminEmail, isValidGithubUsername, normalizeAdminEmail, normalizeGithubUsername } from '../src/validation';
 
 describe('lead status transitions', () => {
   it('allows the working lifecycle and rejects reopening terminal leads', () => {
@@ -14,12 +14,25 @@ describe('lead status transitions', () => {
 describe('authorization claims', () => {
   const issuer = 'https://auth.spacetimedb.com/oidc';
   const audience = 'client_example';
-  it('requires the issuer, audience, and admin role together', () => {
-    const auth = { isInternal: false, jwt: { issuer, audience: [audience], fullPayload: { roles: ['admin'] } } };
-    expect(hasAdminRole(auth, issuer, audience)).toBe(true);
-    expect(hasAdminRole({ ...auth, jwt: { ...auth.jwt, audience: ['wrong'] } }, issuer, audience)).toBe(false);
-    expect(hasAdminRole({ ...auth, jwt: { ...auth.jwt, fullPayload: { roles: ['user'] } } }, issuer, audience)).toBe(false);
-    expect(hasAdminRole({ isInternal: false, jwt: null }, issuer, audience)).toBe(false);
+  const email = 'owner@example.com';
+  const username = 'owner-account';
+  it('requires the issuer, audience, verified email, and GitHub username together', () => {
+    const auth = { isInternal: false, jwt: { issuer, audience: [audience], fullPayload: { email: 'Owner@Example.com', email_verified: true, preferred_username: 'Owner-Account' } } };
+    expect(hasAdminAccount(auth, issuer, audience, email, username)).toBe(true);
+    expect(hasAdminAccount({ ...auth, jwt: { ...auth.jwt, audience: ['wrong'] } }, issuer, audience, email, username)).toBe(false);
+    expect(hasAdminAccount({ ...auth, jwt: { ...auth.jwt, fullPayload: { email: 'other@example.com', email_verified: true, preferred_username: username } } }, issuer, audience, email, username)).toBe(false);
+    expect(hasAdminAccount({ ...auth, jwt: { ...auth.jwt, fullPayload: { email, email_verified: false, preferred_username: username } } }, issuer, audience, email, username)).toBe(false);
+    expect(hasAdminAccount({ ...auth, jwt: { ...auth.jwt, fullPayload: { email, email_verified: true } } }, issuer, audience, email, username)).toBe(false);
+    expect(hasAdminAccount({ isInternal: false, jwt: null }, issuer, audience, email, username)).toBe(false);
+  });
+
+  it('normalizes and validates configured admin email addresses', () => {
+    expect(normalizeAdminEmail(' Owner@Example.com ')).toBe(email);
+    expect(isValidAdminEmail(email)).toBe(true);
+    expect(isValidAdminEmail('not-an-email')).toBe(false);
+    expect(normalizeGithubUsername(' Owner-Account ')).toBe(username);
+    expect(isValidGithubUsername(username)).toBe(true);
+    expect(isValidGithubUsername('-not-valid')).toBe(false);
   });
 });
 
