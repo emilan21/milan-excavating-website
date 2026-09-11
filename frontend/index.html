@@ -32,6 +32,7 @@
     <script src="https://kit.fontawesome.com/b7fed65969.js" crossorigin="anonymous"></script>
     <!-- Custom stylesheet -->
     <link rel="stylesheet" href="css/styles.min.css">
+    <link rel="stylesheet" href="css/forms.css">
 </head>
 <body>
     <header class="top-bar"></header>
@@ -104,6 +105,61 @@
             </div>
         </section>
 
+        <section class="estimate-section" id="estimate">
+            <div class="estimate-content">
+                <h2>Request a Free Estimate</h2>
+                <p class="section-intro">Tell us a little about your project and how you would like us to contact you.</p>
+                <form class="estimate-form" id="estimate-form" novalidate>
+                    <p class="required-note">Fields marked with * are required.</p>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="estimate-name">Name *</label>
+                            <input id="estimate-name" name="name" type="text" minlength="2" maxlength="100" autocomplete="name" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="estimate-service">Service *</label>
+                            <select id="estimate-service" name="service" required>
+                                <option value="">Choose a service</option>
+                                <option value="retaining_walls">Retaining Walls</option>
+                                <option value="excavation">Digging &amp; Excavation</option>
+                                <option value="concrete">Concrete</option>
+                                <option value="driveways">Driveways</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="estimate-email">Email</label>
+                            <input id="estimate-email" name="email" type="email" maxlength="254" autocomplete="email">
+                        </div>
+                        <div class="form-field">
+                            <label for="estimate-phone">Phone</label>
+                            <input id="estimate-phone" name="phone" type="tel" maxlength="40" autocomplete="tel">
+                        </div>
+                        <div class="form-field form-field--full">
+                            <label for="estimate-location">Project location</label>
+                            <input id="estimate-location" name="location" type="text" maxlength="160" autocomplete="street-address">
+                        </div>
+                        <div class="form-field form-field--full">
+                            <label for="estimate-description">Project description *</label>
+                            <textarea id="estimate-description" name="description" minlength="10" maxlength="4000" required></textarea>
+                        </div>
+                        <fieldset class="contact-method">
+                            <legend>Preferred contact method *</legend>
+                            <div class="radio-row">
+                                <label><input type="radio" name="preferredContact" value="phone" required> Phone</label>
+                                <label><input type="radio" name="preferredContact" value="email"> Email</label>
+                                <label><input type="radio" name="preferredContact" value="either"> Either</label>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <p>Provide at least a phone number or email address.</p>
+                    <div class="turnstile-wrap" id="estimate-turnstile"></div>
+                    <button class="primary-button" id="estimate-submit" type="submit">Request My Free Estimate</button>
+                    <div class="form-status" id="estimate-status" role="status" aria-live="polite"></div>
+                </form>
+            </div>
+        </section>
+
     </main>
 
     <footer class="footer">
@@ -126,8 +182,8 @@
         </div>
     </footer>
 
-    <!-- Visitor tracking (hidden - no display on page) -->
-    <script src="js/track-visitors.js"></script>
-    <!-- Deployment updated: 2026-02-15 -->
+    <script src="js/runtime-config.js"></script>
+    <script src="js/site.js"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onEstimateTurnstileLoad&amp;render=explicit" async defer></script>
 </body>
 </html>

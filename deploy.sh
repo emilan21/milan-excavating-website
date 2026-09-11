@@ -1,38 +1,27 @@
-#!/bin/bash
-# Deploy script for Milan Excavating Website
+#!/usr/bin/env bash
+set -euo pipefail
 
-set -e
+required=(
+  CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID SPACETIMEDB_DEPLOY_TOKEN
+  SPACETIMEDB_SERVICE_TOKEN SPACETIMEDB_GATEWAY_IDENTITY TURNSTILE_SECRET
+  PUBLIC_API_BASE_URL TURNSTILE_SITE_KEY SPACETIMEDB_URI SPACETIMEDB_DATABASE
+  SPACETIMEAUTH_CLIENT_ID
+)
+for name in "${required[@]}"; do
+  if [[ -z "${!name:-}" ]]; then echo "Missing required environment variable: $name" >&2; exit 1; fi
+done
 
-echo "======================================="
-echo "  Milan Excavating - Deploy Script     "
-echo "======================================="
-
-# Check if wrangler is installed
-if ! command -v wrangler &> /dev/null; then
-    echo "Error: wrangler CLI is not installed"
-    echo "Install it with: npm install -g wrangler"
-    exit 1
-fi
-
-# Deploy the visitor counter worker
-echo ""
-echo "======================================="
-echo "  Deploying Visitor Counter Worker     "
-echo "======================================="
-cd worker
-wrangler deploy
-cd ..
-
-# Deploy the static site to Cloudflare Pages
-echo ""
-echo "======================================="
-echo "  Deploying Static Site to Pages       "
-echo "======================================="
-wrangler pages deploy frontend
-
-echo ""
-echo "======================================="
-echo "  Deployment Complete!                 "
-echo "======================================="
-echo ""
-echo "Main site: https://milanexcavatingpa.com"
+npm ci
+npm ci --prefix spacetimedb
+npm test
+npm run typecheck
+BUILD_ENV=production npm run build
+spacetime login --token "$SPACETIMEDB_DEPLOY_TOKEN"
+spacetime publish "$SPACETIMEDB_DATABASE" --server maincloud --module-path spacetimedb --delete-data=never --yes=remote,migrate
+spacetime call --server maincloud "$SPACETIMEDB_DATABASE" configure_security "$SPACETIMEDB_GATEWAY_IDENTITY" "$SPACETIMEAUTH_CLIENT_ID"
+jq -n --arg turnstile "$TURNSTILE_SECRET" --arg spacetime "$SPACETIMEDB_SERVICE_TOKEN" \
+  '{TURNSTILE_SECRET: $turnstile, SPACETIMEDB_TOKEN: $spacetime}' |
+  npx wrangler secret bulk --config worker/wrangler.jsonc
+npm run deploy:worker
+npm run deploy:pages
+echo "Deployment completed in database -> Worker -> Pages order."

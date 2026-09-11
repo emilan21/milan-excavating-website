@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <title>Lead Dashboard | Milan's Excavating</title>
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <link rel="stylesheet" href="css/styles.min.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-page">
+    <header class="admin-header">
+        <div>
+            <strong>Milan's Excavating</strong>
+            <span>Lead Dashboard</span>
+        </div>
+        <a href="/">View website</a>
+    </header>
+    <main class="admin-shell">
+        <div class="admin-message" id="admin-message" role="status" aria-live="polite"></div>
+        <section class="login-panel" id="login-panel">
+            <h1>Admin sign in</h1>
+            <p>Use the business-owner account to access estimate requests and visit totals.</p>
+            <button class="primary-button" id="admin-login" type="button">Email me a sign-in link</button>
+        </section>
+
+        <section id="admin-dashboard" hidden>
+            <div class="stat-grid" aria-label="Dashboard totals">
+                <div class="stat-card"><span>New leads</span><strong id="stat-new">0</strong></div>
+                <div class="stat-card"><span>Total leads</span><strong id="stat-total">0</strong></div>
+                <div class="stat-card"><span>Lifetime visits</span><strong id="stat-visits">0</strong></div>
+            </div>
+            <div class="admin-grid">
+                <section class="admin-panel">
+                    <h2>Estimate requests</h2>
+                    <label class="filter-label" for="status-filter">Status
+                        <select id="status-filter">
+                            <option value="all">All statuses</option>
+                            <option value="new">New</option>
+                            <option value="contacted">Contacted</option>
+                            <option value="scheduled">Scheduled</option>
+                            <option value="closed">Closed</option>
+                            <option value="declined">Declined</option>
+                        </select>
+                    </label>
+                    <div class="lead-list" id="lead-list"></div>
+                </section>
+                <section class="admin-panel" id="lead-detail" aria-live="polite">
+                    <p class="empty-state">Select a request to see its details.</p>
+                </section>
+                <section class="admin-panel visits-panel">
+                    <h2>Daily visits</h2>
+                    <table class="visits-table">
+                        <thead><tr><th>Date</th><th>Visits</th></tr></thead>
+                        <tbody id="daily-visits-body"></tbody>
+                    </table>
+                </section>
+            </div>
+            <button class="primary-button" id="admin-logout" type="button">Sign out</button>
+        </section>
+    </main>
+    <script src="js/runtime-config.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

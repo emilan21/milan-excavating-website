@@ -1,10 +1,13 @@
 testing
 node_modules/
+spacetimedb/dist/
 public
 venv
 
 # Cloudflare
 .wrangler/
+worker/.wrangler/
+worker/.dev.vars
+.env.local
 *.log
 .DS_Store
-
