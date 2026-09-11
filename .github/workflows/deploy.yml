@@ -51,7 +51,7 @@ jobs:
         uses: chabad360/htmlproofer@master
         with:
           directory: frontend/
-          arguments: --ignore-status-codes 999,403 --ignore-urls "/localhost/,/challenges.cloudflare.com/"
+          arguments: --ignore-status-codes 999,403 --ignore-urls "/localhost/"
       - name: Validate Worker package
         run: WRANGLER_LOG_PATH=/tmp/wrangler.log npx wrangler deploy --dry-run --config worker/wrangler.jsonc
 
@@ -69,9 +69,7 @@ jobs:
       SPACETIMEDB_DEPLOY_TOKEN: ${{ secrets.SPACETIMEDB_DEPLOY_TOKEN }}
       SPACETIMEDB_SERVICE_TOKEN: ${{ secrets.SPACETIMEDB_SERVICE_TOKEN }}
       SPACETIMEDB_GATEWAY_IDENTITY: ${{ vars.SPACETIMEDB_GATEWAY_IDENTITY }}
-      TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}
       PUBLIC_API_BASE_URL: ${{ vars.PUBLIC_API_BASE_URL }}
-      TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
       SPACETIMEDB_URI: https://maincloud.spacetimedb.com
       SPACETIMEDB_DATABASE: milan-excavating
       SPACETIMEAUTH_CLIENT_ID: ${{ vars.SPACETIMEAUTH_CLIENT_ID }}
@@ -98,8 +96,8 @@ jobs:
           spacetime call --no-config --server maincloud "$SPACETIMEDB_DATABASE" configure_security "$SPACETIMEDB_GATEWAY_IDENTITY" "$SPACETIMEAUTH_CLIENT_ID"
       - name: Update Worker secrets
         run: |
-          jq -n --arg turnstile "$TURNSTILE_SECRET" --arg spacetime "$SPACETIMEDB_SERVICE_TOKEN" \
-            '{TURNSTILE_SECRET: $turnstile, SPACETIMEDB_TOKEN: $spacetime}' |
+          jq -n --arg spacetime "$SPACETIMEDB_SERVICE_TOKEN" \
+            '{SPACETIMEDB_TOKEN: $spacetime}' |
             npx wrangler secret bulk --config worker/wrangler.jsonc
       - name: Deploy gateway Worker
         run: npm run deploy:worker

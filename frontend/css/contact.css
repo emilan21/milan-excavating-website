@@ -1,0 +1,11 @@
+.contact-section { background: #292929; padding: 80px 20px; text-align: center; }
+.contact-content { max-width: 760px; margin: auto; }
+.contact-content h2 { color: var(--excavator-yellow); font-size: clamp(2rem, 5vw, 2.625rem); }
+.contact-content > p { max-width: 620px; margin: 12px auto 32px; }
+.phone-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.phone-action { display: flex; flex-direction: column; gap: 6px; border: 2px solid var(--excavator-yellow); border-radius: 12px; background: #353535; color: var(--white); padding: 22px; text-decoration: none; }
+.phone-action span { color: var(--excavator-yellow); font-weight: 750; }
+.phone-action strong { font-size: clamp(1.25rem, 4vw, 1.65rem); }
+.phone-action:hover, .phone-action:focus-visible { background: var(--excavator-yellow); color: #222; }
+.phone-action:hover span, .phone-action:focus-visible span { color: #222; }
+@media (max-width: 600px) { .phone-actions { grid-template-columns: 1fr; } }

@@ -1,24 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canTransition, hasAdminRole, isIsoDate, validateEstimate } from '../src/validation';
-
-const validEstimate = {
-  name: 'Terry Milan', email: 'terry@example.com', phone: '', service: 'excavation',
-  location: 'Uniontown, PA', description: 'Excavate and prepare a new foundation area.', preferredContact: 'email',
-};
-
-describe('estimate validation', () => {
-  it('accepts every supported service including other', () => {
-    for (const service of ['retaining_walls', 'excavation', 'concrete', 'driveways', 'other']) {
-      expect(() => validateEstimate({ ...validEstimate, service })).not.toThrow();
-    }
-  });
-
-  it('requires a name, description, and one contact channel', () => {
-    expect(() => validateEstimate({ ...validEstimate, name: '' })).toThrow(/Name/);
-    expect(() => validateEstimate({ ...validEstimate, description: 'short' })).toThrow(/description/);
-    expect(() => validateEstimate({ ...validEstimate, email: '', phone: '' })).toThrow(/at least one/);
-  });
-});
+import { canTransition, hasAdminRole, isIsoDate } from '../src/validation';
 
 describe('lead status transitions', () => {
   it('allows the working lifecycle and rejects reopening terminal leads', () => {

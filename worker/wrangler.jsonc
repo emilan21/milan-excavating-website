@@ -5,12 +5,10 @@
   "compatibility_date": "2026-08-22",
   "compatibility_flags": ["nodejs_compat"],
   "secrets": {
-    "required": ["TURNSTILE_SECRET", "SPACETIMEDB_TOKEN"]
+    "required": ["SPACETIMEDB_TOKEN"]
   },
   "vars": {
     "ALLOWED_ORIGINS": "https://milanexcavatingpa.com,https://www.milanexcavatingpa.com",
-    "TURNSTILE_HOSTNAMES": "milanexcavatingpa.com,www.milanexcavatingpa.com",
-    "TURNSTILE_TEST_MODE": "false",
     "SPACETIMEDB_BASE_URL": "https://maincloud.spacetimedb.com",
     "SPACETIMEDB_DATABASE": "milan-excavating"
   },

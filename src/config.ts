@@ -1,6 +1,5 @@
 export type MilanConfig = {
   apiBaseUrl: string;
-  turnstileSiteKey: string;
   spacetimeUri: string;
   spacetimeDatabase: string;
   spacetimeAuthAuthority: string;

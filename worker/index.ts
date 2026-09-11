@@ -1,24 +1,4 @@
-const MAX_ESTIMATE_BODY_BYTES = 12_000;
 const MAX_VISIT_BODY_BYTES = 256;
-const TURNSTILE_ACTION = 'request_estimate';
-
-type EstimatePayload = {
-  name: string;
-  email: string;
-  phone: string;
-  service: string;
-  location: string;
-  description: string;
-  preferredContact: string;
-  turnstileToken: string;
-};
-
-type TurnstileResult = {
-  success?: boolean;
-  action?: string;
-  hostname?: string;
-  'error-codes'?: string[];
-};
 
 class HttpError extends Error {
   constructor(
@@ -97,67 +77,6 @@ async function readBoundedJson(request: Request, maxBytes: number): Promise<unkn
   }
 }
 
-function cleanString(record: Record<string, unknown>, key: string, max: number): string {
-  const value = record[key];
-  if (typeof value !== 'string') throw new HttpError(400, 'invalid_request', `${key} must be a string`);
-  const cleaned = value.trim();
-  if (cleaned.length > max) throw new HttpError(400, 'invalid_request', `${key} is too long`);
-  return cleaned;
-}
-
-function validateEstimate(value: unknown): EstimatePayload {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new HttpError(400, 'invalid_request', 'Request must be an object');
-  const record = value as Record<string, unknown>;
-  const payload: EstimatePayload = {
-    name: cleanString(record, 'name', 100),
-    email: cleanString(record, 'email', 254).toLowerCase(),
-    phone: cleanString(record, 'phone', 40),
-    service: cleanString(record, 'service', 40),
-    location: cleanString(record, 'location', 160),
-    description: cleanString(record, 'description', 4000),
-    preferredContact: cleanString(record, 'preferredContact', 16),
-    turnstileToken: cleanString(record, 'turnstileToken', 2048),
-  };
-  if (payload.name.length < 2) throw new HttpError(400, 'invalid_request', 'Name is required');
-  if (!payload.email && !payload.phone) throw new HttpError(400, 'invalid_request', 'Provide an email or phone number');
-  if (payload.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) throw new HttpError(400, 'invalid_request', 'Email is invalid');
-  if (!['retaining_walls', 'excavation', 'concrete', 'driveways', 'other'].includes(payload.service)) throw new HttpError(400, 'invalid_request', 'Service is invalid');
-  if (payload.description.length < 10) throw new HttpError(400, 'invalid_request', 'Please provide more project detail');
-  if (!['phone', 'email', 'either'].includes(payload.preferredContact)) throw new HttpError(400, 'invalid_request', 'Preferred contact method is invalid');
-  if (payload.preferredContact === 'phone' && !payload.phone) throw new HttpError(400, 'invalid_request', 'Phone is required for phone contact');
-  if (payload.preferredContact === 'email' && !payload.email) throw new HttpError(400, 'invalid_request', 'Email is required for email contact');
-  if (!payload.turnstileToken) throw new HttpError(403, 'verification_required', 'Verification is required');
-  return payload;
-}
-
-async function verifyTurnstile(request: Request, token: string, env: Env): Promise<void> {
-  const expectedHostnames = parseList(env.TURNSTILE_HOSTNAMES);
-  if (!env.TURNSTILE_SECRET || expectedHostnames.size === 0) throw new HttpError(503, 'verification_unavailable', 'Verification is unavailable');
-  const body = new URLSearchParams({ secret: env.TURNSTILE_SECRET, response: token });
-  const remoteIp = request.headers.get('CF-Connecting-IP');
-  if (remoteIp) body.set('remoteip', remoteIp);
-
-  let result: TurnstileResult;
-  try {
-    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body,
-      signal: AbortSignal.timeout(10_000),
-    });
-    if (!response.ok) throw new Error(`Siteverify returned ${response.status}`);
-    result = await response.json<TurnstileResult>();
-  } catch (error) {
-    console.error(JSON.stringify({ event: 'turnstile_error', error: error instanceof Error ? error.message : 'unknown' }));
-    throw new HttpError(403, 'verification_failed', 'Verification failed');
-  }
-  const metadataValid = env.TURNSTILE_TEST_MODE === 'true' || (result.action === TURNSTILE_ACTION && !!result.hostname && expectedHostnames.has(result.hostname));
-  if (result.success !== true || !metadataValid) {
-    console.log(JSON.stringify({ event: 'turnstile_rejected', errorCodes: result['error-codes'] ?? [] }));
-    throw new HttpError(403, 'verification_failed', 'Verification failed');
-  }
-}
-
 async function callReducer(name: string, args: unknown[], env: Env): Promise<void> {
   const base = env.SPACETIMEDB_BASE_URL.replace(/\/$/, '');
   const url = `${base}/v1/database/${encodeURIComponent(env.SPACETIMEDB_DATABASE)}/call/${encodeURIComponent(name)}`;
@@ -171,23 +90,6 @@ async function callReducer(name: string, args: unknown[], env: Env): Promise<voi
     signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) throw new Error(`SpacetimeDB reducer ${name} returned ${response.status}`);
-}
-
-async function handleEstimate(request: Request, env: Env): Promise<Response> {
-  const origin = requireAllowedOrigin(request, env);
-  const payload = validateEstimate(await readBoundedJson(request, MAX_ESTIMATE_BODY_BYTES));
-  await verifyTurnstile(request, payload.turnstileToken, env);
-  await callReducer('create_estimate', [
-    payload.name,
-    payload.email,
-    payload.phone,
-    payload.service,
-    payload.location,
-    payload.description,
-    payload.preferredContact,
-  ], env);
-  console.log(JSON.stringify({ event: 'estimate_created', service: payload.service }));
-  return jsonResponse({ ok: true }, 201, origin, env);
 }
 
 async function handleVisit(request: Request, env: Env): Promise<Response> {
@@ -213,10 +115,6 @@ const handler: ExportedHandler<Env> = {
       if (url.pathname === '/health') {
         if (request.method !== 'GET') throw new HttpError(405, 'method_not_allowed', 'Method not allowed');
         return jsonResponse({ status: 'ok' }, 200, origin, env);
-      }
-      if (url.pathname === '/api/estimates') {
-        if (request.method !== 'POST') throw new HttpError(405, 'method_not_allowed', 'Method not allowed');
-        return await handleEstimate(request, env);
       }
       if (url.pathname === '/api/visits') {
         if (request.method !== 'POST') throw new HttpError(405, 'method_not_allowed', 'Method not allowed');

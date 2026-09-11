@@ -1,6 +1,6 @@
 import { SenderError, schema, table, t } from 'spacetimedb/server';
 import type { Identity } from 'spacetimedb';
-import { canTransition, hasAdminRole, isIsoDate, normalizeText, STATUSES, validateEstimate, type AuthContext } from './validation';
+import { canTransition, hasAdminRole, isIsoDate, STATUSES, type AuthContext } from './validation';
 
 const ADMIN_SCOPE = 'admin';
 const SPACETIMEAUTH_ISSUER = 'https://auth.spacetimedb.com/oidc';
@@ -174,26 +174,8 @@ export const createEstimate = spacetimedb.reducer(
   },
   (ctx, input) => {
     requireGateway(ctx);
-    try {
-      validateEstimate(input);
-    } catch (error) {
-      throw new SenderError(error instanceof Error ? error.message : 'Invalid estimate request');
-    }
-    ctx.db.estimateRequest.insert({
-      id: 0n,
-      name: normalizeText(input.name),
-      email: normalizeText(input.email).toLowerCase(),
-      phone: normalizeText(input.phone),
-      service: input.service,
-      location: normalizeText(input.location),
-      description: input.description.trim(),
-      preferredContact: input.preferredContact,
-      createdAt: ctx.timestamp,
-      updatedAt: ctx.timestamp,
-      status: 'new',
-      adminNotes: '',
-      adminScope: ADMIN_SCOPE,
-    });
+    void input;
+    throw new SenderError('Online estimate requests are disabled; please call the business');
   }
 );
 

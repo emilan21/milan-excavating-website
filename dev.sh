@@ -36,11 +36,8 @@ spacetime call --server local milan-excavating-local configure_security "$gatewa
   umask 077
   printf '%s\n' \
     'ALLOWED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000' \
-    'TURNSTILE_HOSTNAMES=localhost,127.0.0.1' \
-    'TURNSTILE_TEST_MODE=true' \
     'SPACETIMEDB_BASE_URL=http://127.0.0.1:3000' \
     'SPACETIMEDB_DATABASE=milan-excavating-local' \
-    'TURNSTILE_SECRET=1x0000000000000000000000000000000AA' \
     "SPACETIMEDB_TOKEN=$gateway_token" > worker/.dev.vars
 )
 unset gateway_token gateway_identity

@@ -4,7 +4,6 @@ import { mkdir, writeFile } from 'node:fs/promises';
 const production = process.env.BUILD_ENV === 'production';
 const config = {
   apiBaseUrl: process.env.PUBLIC_API_BASE_URL || 'http://localhost:8787',
-  turnstileSiteKey: process.env.TURNSTILE_SITE_KEY || '1x00000000000000000000AA',
   spacetimeUri: process.env.SPACETIMEDB_URI || 'ws://localhost:3000',
   spacetimeDatabase: process.env.SPACETIMEDB_DATABASE || 'milan-excavating-local',
   spacetimeAuthAuthority: process.env.SPACETIMEAUTH_AUTHORITY || 'https://auth.spacetimedb.com/oidc',
@@ -12,7 +11,7 @@ const config = {
 };
 
 if (production) {
-  const required = ['PUBLIC_API_BASE_URL', 'TURNSTILE_SITE_KEY', 'SPACETIMEDB_URI', 'SPACETIMEDB_DATABASE', 'SPACETIMEAUTH_CLIENT_ID'];
+  const required = ['PUBLIC_API_BASE_URL', 'SPACETIMEDB_URI', 'SPACETIMEDB_DATABASE', 'SPACETIMEAUTH_CLIENT_ID'];
   const missing = required.filter(name => !process.env[name]);
   if (missing.length) throw new Error(`Missing production client configuration: ${missing.join(', ')}`);
 }
