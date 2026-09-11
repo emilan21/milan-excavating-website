@@ -22,7 +22,7 @@ jobs:
           cache: npm
       - name: Install SpacetimeDB 2.10.0
         run: |
-          curl -sSf https://install.spacetimedb.com | sh
+          curl -sSf https://install.spacetimedb.com | sh -s -- -y
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           "$HOME/.local/bin/spacetime" version install 2.10.0
           "$HOME/.local/bin/spacetime" version use 2.10.0
@@ -78,7 +78,7 @@ jobs:
           cache: npm
       - name: Install SpacetimeDB 2.10.0
         run: |
-          curl -sSf https://install.spacetimedb.com | sh
+          curl -sSf https://install.spacetimedb.com | sh -s -- -y
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           "$HOME/.local/bin/spacetime" version install 2.10.0
           "$HOME/.local/bin/spacetime" version use 2.10.0
