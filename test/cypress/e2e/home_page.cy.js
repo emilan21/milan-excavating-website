@@ -1,4 +1,11 @@
 describe('The Home Page', () => {
+  beforeEach(() => {
+    cy.intercept('GET', 'https://challenges.cloudflare.com/turnstile/v0/api.js*', {
+      statusCode: 200,
+      body: '',
+    })
+  })
+
   function installTurnstile(win) {
     let callback
     win.turnstile = {

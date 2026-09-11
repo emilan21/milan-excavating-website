@@ -10,4 +10,5 @@ worker/.wrangler/
 worker/.dev.vars
 .env.local
 *.log
+cypress/screenshots/
 .DS_Store

@@ -37,10 +37,15 @@ jobs:
       - run: npm run build:client
       - name: Browser tests
         run: |
-          npm run dev:pages >/tmp/milan-pages.log 2>&1 &
+          python3 -m http.server 8000 --directory frontend >/tmp/milan-pages.log 2>&1 &
           pages_pid=$!
           trap 'kill "$pages_pid" 2>/dev/null || true' EXIT
-          for attempt in {1..40}; do curl -fsS http://127.0.0.1:8000 >/dev/null && break; sleep 0.25; done
+          ready=false
+          for attempt in {1..40}; do
+            if curl -fsS http://127.0.0.1:8000 >/dev/null; then ready=true; break; fi
+            sleep 0.25
+          done
+          if [[ "$ready" != true ]]; then cat /tmp/milan-pages.log; exit 1; fi
           npm run test:e2e
       - name: Validate HTML
         uses: chabad360/htmlproofer@master
