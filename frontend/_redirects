@@ -1,0 +1,9 @@
+# Retired visitor analytics and dashboard paths.
+/admin /404.html 302
+/admin.html /404.html 302
+/admin/api/stats /404.html 302
+/api/visits /404.html 302
+/css/admin.css /404.html 302
+/js/admin.js /404.html 302
+/js/runtime-config.js /404.html 302
+/js/site.js /404.html 302
