@@ -3,21 +3,20 @@
   "version": "1.0.0",
   "description": "Milan's Excavating & Landscaping website with local dev server",
   "scripts": {
-    "build": "npm run build:module && npm run generate && npm run build:client",
-    "build:module": "spacetime build --module-path spacetimedb",
+    "build": "npm run build:client",
     "build:client": "node scripts/build-client.mjs",
-    "generate": "spacetime generate --lang typescript --out-dir src/module_bindings --module-path spacetimedb --include-private --yes",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p worker/tsconfig.json && tsc --noEmit -p spacetimedb/tsconfig.json",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p worker/tsconfig.json",
     "test": "vitest run",
+    "test:d1": "bash test/d1-integration.sh",
     "test:e2e": "cypress run --config-file test/cypress.config.js",
     "dev": "bash dev.sh",
-    "dev:pages": "wrangler pages dev frontend --port=8000 --inspector-port=9230 --compatibility-date=2026-08-22",
-    "dev:worker": "wrangler dev --config worker/wrangler.jsonc --port=8787 --inspector-port=9231",
-    "dev:db": "spacetime dev milan-excavating-local --project-path . --server local --server-only --yes",
+    "dev:pages": "WRANGLER_LOG_PATH=/tmp/milan-pages-wrangler.log wrangler pages dev frontend --port=8000 --inspector-port=9330 --compatibility-date=2026-08-22",
+    "dev:worker": "WRANGLER_LOG_PATH=/tmp/milan-worker-wrangler.log wrangler dev --env local --config worker/wrangler.jsonc --local --persist-to .wrangler/state --port=8787 --inspector-port=9331",
+    "db:migrate:local": "WRANGLER_LOG_PATH=/tmp/milan-d1-wrangler.log wrangler d1 migrations apply DB --env local --local --persist-to .wrangler/state --config worker/wrangler.jsonc",
+    "db:migrate:remote": "WRANGLER_LOG_PATH=/tmp/milan-d1-wrangler.log wrangler d1 migrations apply DB --env= --remote --config worker/wrangler.jsonc",
     "deploy": "bash deploy.sh",
-    "deploy:module": "spacetime publish milan-excavating --server maincloud --module-path spacetimedb --delete-data=never --yes=remote,migrate",
-    "deploy:worker": "wrangler deploy --config worker/wrangler.jsonc",
-    "deploy:pages": "wrangler pages deploy frontend --project-name milan-excavating-site",
+    "deploy:worker": "WRANGLER_LOG_PATH=/tmp/milan-worker-wrangler.log wrangler deploy --env= --config worker/wrangler.jsonc",
+    "deploy:pages": "WRANGLER_LOG_PATH=/tmp/milan-pages-wrangler.log wrangler pages deploy frontend --project-name milan-excavating-site",
     "cf-types": "WRANGLER_LOG_PATH=/tmp/milan-wrangler.log wrangler types --config worker/wrangler.jsonc --include-runtime=false --strict-vars=false worker/worker-configuration.d.ts"
   },
   "devDependencies": {
@@ -29,10 +28,6 @@
     "vitest": "latest",
     "wrangler": "latest"
   },
-  "dependencies": {
-    "oidc-client-ts": "latest",
-    "spacetimedb": "2.10.*"
-  },
   "keywords": [
     "excavating",
     "landscaping",
@@ -40,5 +35,8 @@
     "pages"
   ],
   "author": "Eric Milan",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "jose": "^6.2.12"
+  }
 }

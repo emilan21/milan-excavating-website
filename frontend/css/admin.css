@@ -2,8 +2,6 @@ body.admin-page { min-height: 100vh; }
 .admin-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px clamp(20px, 4vw, 60px); background: var(--excavator-yellow); color: #222; }
 .admin-header a { color: #222; }
 .admin-shell { max-width: 760px; margin: auto; padding: 35px 20px 70px; }
-.login-panel { max-width: 520px; margin: 80px auto; text-align: center; background: #393939; padding: 40px; border-radius: 12px; }
-.login-panel h1 { color: var(--excavator-yellow); }
 .admin-message { min-height: 26px; margin: 0 0 18px; color: var(--lime-green); }
 .admin-message--error { color: #ffb0a7; }
 .stat-grid { display: grid; grid-template-columns: minmax(220px, 360px); gap: 18px; margin-bottom: 25px; }
@@ -15,5 +13,7 @@ body.admin-page { min-height: 100vh; }
 .visits-table { width: 100%; border-collapse: collapse; }
 .visits-table th, .visits-table td { border-bottom: 1px solid #555; padding: 8px; text-align: left; }
 .primary-button { border: 0; border-radius: 7px; background: var(--excavator-yellow); color: #222; cursor: pointer; font: inherit; font-weight: 750; padding: 14px 22px; }
+.admin-actions { display: flex; gap: 12px; margin-top: 22px; }
+.admin-actions a { display: inline-block; text-decoration: none; }
 .primary-button:disabled { cursor: wait; opacity: .65; }
 @media (max-width: 700px) { .stat-grid, .admin-grid { grid-template-columns: 1fr; } }

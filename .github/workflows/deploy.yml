@@ -20,40 +20,30 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Install SpacetimeDB 2.10.0
-        run: |
-          curl -sSf https://install.spacetimedb.com | sh -s -- -y
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-          "$HOME/.local/bin/spacetime" version install 2.10.0
-          "$HOME/.local/bin/spacetime" version use 2.10.0
       - run: npm ci
-      - run: npm ci --prefix spacetimedb
+      - run: npm run db:migrate:local
       - run: npm test
+      - run: npm run test:d1
       - run: npm run typecheck
-      - run: npm run build:module
-      - run: npm run generate
-      - name: Verify generated bindings are committed
-        run: git diff --exit-code -- src/module_bindings
-      - run: npm run build:client
+      - run: npm run build
       - name: Browser tests
         run: |
           python3 -m http.server 8000 --directory frontend >/tmp/milan-pages.log 2>&1 &
           pages_pid=$!
           trap 'kill "$pages_pid" 2>/dev/null || true' EXIT
-          ready=false
           for attempt in {1..40}; do
-            if curl -fsS http://127.0.0.1:8000 >/dev/null; then ready=true; break; fi
+            if curl -fsS http://127.0.0.1:8000 >/dev/null; then break; fi
             sleep 0.25
           done
-          if [[ "$ready" != true ]]; then cat /tmp/milan-pages.log; exit 1; fi
+          curl -fsS http://127.0.0.1:8000 >/dev/null
           npm run test:e2e
       - name: Validate HTML
         uses: chabad360/htmlproofer@master
         with:
           directory: frontend/
-          arguments: --ignore-status-codes 999,403 --ignore-urls "/localhost/"
+          arguments: --ignore-status-codes 999,403 --ignore-urls "/localhost/,/cdn-cgi/access/logout"
       - name: Validate Worker package
-        run: WRANGLER_LOG_PATH=/tmp/wrangler.log npx wrangler deploy --dry-run --config worker/wrangler.jsonc
+        run: WRANGLER_LOG_PATH=/tmp/wrangler.log npx wrangler deploy --env= --dry-run --config worker/wrangler.jsonc
 
   deploy:
     needs: test
@@ -66,42 +56,26 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      SPACETIMEDB_DEPLOY_TOKEN: ${{ secrets.SPACETIMEDB_DEPLOY_TOKEN }}
-      SPACETIMEDB_SERVICE_TOKEN: ${{ secrets.SPACETIMEDB_SERVICE_TOKEN }}
-      SPACETIMEAUTH_ADMIN_EMAIL: ${{ secrets.SPACETIMEAUTH_ADMIN_EMAIL }}
-      SPACETIMEAUTH_GITHUB_USERNAME: ${{ vars.SPACETIMEAUTH_GITHUB_USERNAME }}
-      SPACETIMEDB_GATEWAY_IDENTITY: ${{ vars.SPACETIMEDB_GATEWAY_IDENTITY }}
-      PUBLIC_API_BASE_URL: ${{ vars.PUBLIC_API_BASE_URL }}
-      SPACETIMEDB_URI: https://maincloud.spacetimedb.com
-      SPACETIMEDB_DATABASE: milan-excavating
-      SPACETIMEAUTH_CLIENT_ID: ${{ vars.SPACETIMEAUTH_CLIENT_ID }}
+      ACCESS_TEAM_DOMAIN: ${{ secrets.ACCESS_TEAM_DOMAIN }}
+      ACCESS_AUD: ${{ secrets.ACCESS_AUD }}
+      ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - name: Install SpacetimeDB 2.10.0
-        run: |
-          curl -sSf https://install.spacetimedb.com | sh -s -- -y
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-          "$HOME/.local/bin/spacetime" version install 2.10.0
-          "$HOME/.local/bin/spacetime" version use 2.10.0
       - run: npm ci
-      - run: npm ci --prefix spacetimedb
       - name: Build production assets
-        run: BUILD_ENV=production npm run build
-      - name: Publish database module
+        run: npm run build
+      - name: Apply pending D1 migrations
+        run: npm run db:migrate:remote
+      - name: Update Worker Access configuration
         run: |
-          spacetime login --token "$SPACETIMEDB_DEPLOY_TOKEN"
-          spacetime publish "$SPACETIMEDB_DATABASE" --server maincloud --module-path spacetimedb --delete-data=never --yes=remote,migrate
-          spacetime call --no-config --server maincloud "$SPACETIMEDB_DATABASE" configure_security "$SPACETIMEDB_GATEWAY_IDENTITY" "$SPACETIMEAUTH_CLIENT_ID" "$SPACETIMEAUTH_ADMIN_EMAIL" "$SPACETIMEAUTH_GITHUB_USERNAME"
-      - name: Update Worker secrets
-        run: |
-          jq -n --arg spacetime "$SPACETIMEDB_SERVICE_TOKEN" \
-            '{SPACETIMEDB_TOKEN: $spacetime}' |
-            npx wrangler secret bulk --config worker/wrangler.jsonc
-      - name: Deploy gateway Worker
+          jq -n --arg team "$ACCESS_TEAM_DOMAIN" --arg aud "$ACCESS_AUD" --arg email "$ADMIN_EMAIL" \
+            '{ACCESS_TEAM_DOMAIN: $team, ACCESS_AUD: $aud, ADMIN_EMAIL: $email}' |
+            npx wrangler secret bulk --env= --config worker/wrangler.jsonc
+      - name: Deploy analytics Worker
         run: npm run deploy:worker
       - name: Deploy Pages
         run: npm run deploy:pages

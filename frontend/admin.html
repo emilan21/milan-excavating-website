@@ -19,13 +19,7 @@
     </header>
     <main class="admin-shell">
         <div class="admin-message" id="admin-message" role="status" aria-live="polite"></div>
-        <section class="login-panel" id="login-panel">
-            <h1>Admin sign in</h1>
-            <p>Use the business-owner account to access website visit totals.</p>
-            <button class="primary-button" id="admin-login" type="button">Sign in with GitHub</button>
-        </section>
-
-        <section id="admin-dashboard" hidden>
+        <section id="admin-dashboard">
             <div class="stat-grid" aria-label="Dashboard totals">
                 <div class="stat-card"><span>Lifetime visits</span><strong id="stat-visits">0</strong></div>
             </div>
@@ -38,7 +32,10 @@
                     </table>
                 </section>
             </div>
-            <button class="primary-button" id="admin-logout" type="button">Sign out</button>
+            <div class="admin-actions">
+                <button class="primary-button" id="admin-refresh" type="button">Refresh</button>
+                <a class="primary-button" id="admin-logout" href="/cdn-cgi/access/logout">Sign out</a>
+            </div>
         </section>
     </main>
     <script src="js/runtime-config.js"></script>

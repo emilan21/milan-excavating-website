@@ -1,15 +1,7 @@
-export type MilanConfig = {
-  apiBaseUrl: string;
-  spacetimeUri: string;
-  spacetimeDatabase: string;
-  spacetimeAuthAuthority: string;
-  spacetimeAuthClientId: string;
-};
+export type MilanConfig = { apiBaseUrl: string };
 
 declare global {
-  interface Window {
-    MILAN_CONFIG: MilanConfig;
-  }
+  interface Window { MILAN_CONFIG: MilanConfig; }
 }
 
 export const config = window.MILAN_CONFIG;
