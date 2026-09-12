@@ -1,9 +1,0 @@
-# dev.sh creates worker/.dev.vars with a disposable local SpacetimeDB identity
-# and Cloudflare's always-pass local Turnstile test secret.
-ALLOWED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
-TURNSTILE_HOSTNAMES=localhost,127.0.0.1
-TURNSTILE_TEST_MODE=true
-SPACETIMEDB_BASE_URL=http://127.0.0.1:3000
-SPACETIMEDB_DATABASE=milan-excavating-local
-TURNSTILE_SECRET=use-a-cloudflare-turnstile-test-secret
-SPACETIMEDB_TOKEN=use-a-local-spacetimedb-token
