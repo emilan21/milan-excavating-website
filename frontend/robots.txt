@@ -1,6 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /admin.html
-Disallow: /admin
 
 Sitemap: https://milanexcavatingpa.com/sitemap.xml

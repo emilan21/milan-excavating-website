@@ -1,1 +1,0 @@
-"use strict";(()=>{var e=window.MILAN_CONFIG;var i="milan-visit-recorded";sessionStorage.getItem(i)||(sessionStorage.setItem(i,"true"),fetch(`${e.apiBaseUrl}/api/visits`,{method:"POST",headers:{"Content-Type":"application/json"},body:"{}",keepalive:!0}).catch(()=>{}));})();

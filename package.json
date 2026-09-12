@@ -1,31 +1,16 @@
 {
   "name": "milan-excavating-website",
   "version": "1.0.0",
-  "description": "Milan's Excavating & Landscaping website with local dev server",
+  "description": "Milan's Excavating & Landscaping static website",
   "scripts": {
-    "build": "npm run build:client",
-    "build:client": "node scripts/build-client.mjs",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p worker/tsconfig.json",
-    "test": "vitest run",
-    "test:d1": "bash test/d1-integration.sh",
     "test:e2e": "cypress run --config-file test/cypress.config.js",
     "dev": "bash dev.sh",
     "dev:pages": "WRANGLER_LOG_PATH=/tmp/milan-pages-wrangler.log wrangler pages dev frontend --port=8000 --inspector-port=9330 --compatibility-date=2026-08-22",
-    "dev:worker": "WRANGLER_LOG_PATH=/tmp/milan-worker-wrangler.log wrangler dev --env local --config worker/wrangler.jsonc --local --persist-to .wrangler/state --port=8787 --inspector-port=9331",
-    "db:migrate:local": "WRANGLER_LOG_PATH=/tmp/milan-d1-wrangler.log wrangler d1 migrations apply DB --env local --local --persist-to .wrangler/state --config worker/wrangler.jsonc",
-    "db:migrate:remote": "WRANGLER_LOG_PATH=/tmp/milan-d1-wrangler.log wrangler d1 migrations apply DB --env= --remote --config worker/wrangler.jsonc",
     "deploy": "bash deploy.sh",
-    "deploy:worker": "WRANGLER_LOG_PATH=/tmp/milan-worker-wrangler.log wrangler deploy --env= --config worker/wrangler.jsonc",
-    "deploy:pages": "WRANGLER_LOG_PATH=/tmp/milan-pages-wrangler.log wrangler pages deploy frontend --project-name milan-excavating-site",
-    "cf-types": "WRANGLER_LOG_PATH=/tmp/milan-wrangler.log wrangler types --config worker/wrangler.jsonc --include-runtime=false --strict-vars=false worker/worker-configuration.d.ts"
+    "deploy:pages": "WRANGLER_LOG_PATH=/tmp/milan-pages-wrangler.log wrangler pages deploy frontend --project-name milan-excavating-site"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "latest",
-    "@cloudflare/workers-types": "latest",
     "cypress": "^13.17.0",
-    "esbuild": "latest",
-    "typescript": "~5.6.2",
-    "vitest": "latest",
     "wrangler": "latest"
   },
   "keywords": [
@@ -35,8 +20,5 @@
     "pages"
   ],
   "author": "Eric Milan",
-  "license": "MIT",
-  "dependencies": {
-    "jose": "^6.2.12"
-  }
+  "license": "MIT"
 }
