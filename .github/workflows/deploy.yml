@@ -21,6 +21,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm run lint:html
       - name: Browser tests
         run: |
           python3 -m http.server 8000 --directory frontend >/tmp/milan-pages.log 2>&1 &

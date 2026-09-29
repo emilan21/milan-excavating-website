@@ -9,7 +9,7 @@ Cloudflare Web Analytics measures page views and Web Vitals. It is enabled on th
 Requirements: Node.js and npm.
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
@@ -17,14 +17,15 @@ The site is served at <http://localhost:8000>. Cloudflare does not inject its an
 
 ## Checks
 
-Run the browser tests against a local static server:
+Validate both HTML pages, then run browser tests against a local static server:
 
 ```bash
+npm run lint:html
 python3 -m http.server 8000 --directory frontend
 npm run test:e2e
 ```
 
-HTML validation runs in GitHub Actions with `htmlproofer`.
+GitHub Actions runs both `html-validate` and `htmlproofer` on pull requests.
 
 ## Deployment
 
