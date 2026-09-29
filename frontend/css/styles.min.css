@@ -238,12 +238,12 @@ body {
 }
 
 .footer-brand p {
-  color: var(--concrete-gray);
+  color: var(--white);
   font-size: 16px;
 }
 
 .footer-contact p {
-  color: var(--concrete-gray);
+  color: var(--white);
   margin-bottom: 10px;
   font-size: 16px;
 }
@@ -271,7 +271,7 @@ body {
 }
 
 .footer-copyright p {
-  color: var(--concrete-gray);
+  color: var(--white);
   font-size: 14px;
 }
 

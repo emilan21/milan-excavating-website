@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Milan's Excavating & Landscaping static website",
   "scripts": {
+    "lint:html": "html-validate frontend/index.html frontend/404.html",
     "test:e2e": "cypress run --config-file test/cypress.config.js",
     "dev": "bash dev.sh",
     "dev:pages": "WRANGLER_LOG_PATH=/tmp/milan-pages-wrangler.log wrangler pages dev frontend --port=8000 --inspector-port=9330 --compatibility-date=2026-08-22",
@@ -11,6 +12,7 @@
   },
   "devDependencies": {
     "cypress": "^13.17.0",
+    "html-validate": "^11.16.1",
     "wrangler": "latest"
   },
   "keywords": [
